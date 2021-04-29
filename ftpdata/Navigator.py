@@ -1,5 +1,6 @@
 import paramiko
 from ftpdata.QueryResult import QueryResult
+from ftpdata.exceptions import NoSuchDirectoryError
 
 
 class Navigator:
@@ -14,4 +15,10 @@ class Navigator:
 
     def query(self, p):
 
-        return QueryResult(self.cli, [(p, f) for f in self.sess.listdir(p) if not self.is_dir(f"{p}/{f}") ])
+        ls = None
+        try:
+            ls = self.sess.listdir(p)
+        except FileNotFoundError:
+            raise NoSuchDirectoryError(f"'{p}' could not be found from the source.")
+
+        return QueryResult(self.cli, [(p, f) for f in ls if not self.is_dir(f"{p}/{f}") ])

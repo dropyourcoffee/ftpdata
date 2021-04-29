@@ -1,3 +1,4 @@
+import os.path
 
 class QueryResult:
 
@@ -16,7 +17,10 @@ class QueryResult:
         ret = self.l[self._i]
         self._i += 1
         (path, file) = ret
-        self.cli.get(path+"/"+file, f"./{file}")
+
+        landing = f"./{file}"
+        if not os.path.isfile(landing):
+            self.cli.get(path+"/"+file, landing)
         return open(file)
 
     def filter_by(self, pattern=""):

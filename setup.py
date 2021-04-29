@@ -4,7 +4,7 @@ from ftpdata import __version__
 setup(
     name="ftpdata",
     description="A Simple ORM connector for file servers",
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(exclude=['testbench']),
     version=__version__,
     install_requires=['paramiko'],
 )
