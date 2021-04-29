@@ -4,10 +4,9 @@ if __name__ == "__main__":
     import os
     from ftpdata import create_engine
 
-    # host = os.environ["HOST"]
-    host = "10.0.0.5"
-    username = "ubuntu"
-    pkey= "../ibk_sftp.pem"
+    host = os.environ["HOST"]
+    username = "username"
+    pkey= "../mykey.pem"
 
     engine = create_engine(host, username=username, pkey=pkey)
     sess = engine()
