@@ -5,3 +5,5 @@ dist/
 *.egg-info
 *.pyc
 *.pem
+.env
+preset_a.py
