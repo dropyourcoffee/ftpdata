@@ -10,3 +10,6 @@ class UnknownError(Exception):
 
 class NoSuchDirectoryError(FileNotFoundError):
     """ When Directory could not be found from source """
+
+class PresetValidationError(Exception):
+    """ When Preset File fails validation """

@@ -1,9 +1,16 @@
 from importlib import import_module
 from collections import namedtuple
+from ftpdata.exceptions import PresetValidationError
 
 
 def Config(filename):
     cfg = import_module(filename, package=None)
+
+    if not hasattr(cfg, 'preset'):
+        raise PresetValidationError(f"preset must be defined in the preset file, {filename}")
+
+    if 'sync_db' not in cfg.preset.keys():
+        raise PresetValidationError(f"Key Not Found in the preset file:: 'sync_db'")
 
     # Make 'Config' type object and map all (key value) sets into attribute within itself.
     return type("Config", (), {
