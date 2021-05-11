@@ -2,6 +2,7 @@ from ftpdata import preset
 from ftpdata.exceptions import PresetValidationError
 import pytest
 
+
 class TestPreset:
 
     def test_1_load_preset(self):
@@ -10,9 +11,8 @@ class TestPreset:
         assert cfg.sync_db.host == "localhost"
 
     def test_2_fail_when_presetfile_not_exists(self):
-        cfg = preset.Config('non_existing_preset')
-        print(cfg.sync_db)
-        assert cfg.sync_db.host == "localhost"
+        with pytest.raises(ModuleNotFoundError):
+            preset.Config('non_existing_preset')
 
     def test_3_validate_preset_has_sync_db(self):
         with pytest.raises(PresetValidationError):
