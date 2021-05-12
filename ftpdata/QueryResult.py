@@ -1,7 +1,9 @@
 import os.path
 from ftpdata.util import _override_with
+import paramiko.sftp_client
 import pandas as pd
 import mysql
+import re
 
 
 _get_vals = lambda fpm, r: ", ".join([desc.get('fn', lambda x: x)(r[idx]) for (idx, desc) in enumerate(fpm) if desc is not None])
@@ -50,6 +52,28 @@ def tabulate(self, preset=None, header='infer', sep=','):
 
 tabulated = _override_with(tabulate=tabulate)
 
+class FileInst:
+    def __init__(self, sess, path, fname):
+        self.sess = sess
+        self.path = path
+        self.name = fname
+
+    def get(self, localpath=None):
+
+        if localpath is None:
+            localpath = f"./{self.name}"
+
+        abs_fp = f"{self.path}/{self.name}" if self.path != "/" else f"/{self.name}"
+
+        if isinstance(self.sess, paramiko.sftp_client.SFTPClient):
+            self.sess.get(abs_fp, localpath=localpath)
+        else:
+            if not os.path.isfile(localpath):
+                with open(localpath, "wb") as fp:
+                    self.sess.retrbinary(f"RETR {abs_fp}", fp.write)
+
+        return localpath
+
 
 class QueryResult:
 
@@ -70,11 +94,11 @@ class QueryResult:
         self._i += 1
         (path, file) = ret
 
-        landing = f"./{file}"
-        if not os.path.isfile(landing):
-            self.cli.get(path+"/"+file, landing)
-        io = tabulated(open(file, encoding=self.encoding))
-        return io
+        return FileInst(self.cli, path, file)
 
     def filter_by(self, pattern=""):
-        return QueryResult(self.cli, [(f[0], f[1]) for f in self.l if pattern in f"{f[0]}/{f[1]}"], encoding=self.encoding)
+
+        # if pattern is regexp, use '.match()' otherwise check include
+        inspect_fn = pattern.math if isinstance(pattern, re.Pattern) else lambda s: bool(pattern in s)
+
+        return QueryResult(self.cli, [(f[0], f[1]) for f in self.l if pattern in f[1]], encoding=self.encoding)
