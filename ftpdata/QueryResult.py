@@ -10,48 +10,6 @@ _get_vals = lambda fpm, r: ", ".join([desc.get('fn', lambda x: x)(r[idx]) for (i
 _get_cols = lambda fpm: ", ".join([f"`{desc.get('column_name')}`" for desc in fpm if desc is not None])
 
 
-def tabulate(self, preset=None, header='infer', sep=','):
-
-    target = list(filter(lambda k: self.name.startswith(k), preset.sync_db.maps.keys()))
-
-    if not len(target):
-        raise Exception(f"No map match for found file :: {self.name}")
-    else:
-        target = list(target)[0]
-
-    insert_fn = preset.sync_db.maps[target].get('insert')
-    tbl_name = preset.sync_db.maps[target].get('tb_name')
-    mapper = preset.sync_db.maps[target].get('column_mapper')
-
-    df = pd.read_csv(self, header=header, sep=sep)
-
-    class Payloads(object):
-        def __init__(self):
-            self.database = preset.sync_db.database
-            self.tbl_name = tbl_name
-            self.qcols = _get_cols(mapper)
-
-    p = Payloads()
-
-    with mysql.connector.connect(
-        host=preset.sync_db.host,
-        user=preset.sync_db.user,
-        password=preset.sync_db.password
-    ) as cnx:
-        cursor = cnx.cursor(dictionary=True)
-        p.vals = {}
-        for idx, (_, d) in enumerate(df.iterrows()):
-            p.qvals = _get_vals(mapper, d)
-            p.vals = dict(zip([m.get('column_name') for m in mapper if m is not None],
-                              [d for idx, d in enumerate(d) if mapper[idx] is not None]
-                              ))
-            qstr = insert_fn(p)
-            cursor.execute(qstr)
-        cursor.close()
-        cnx.commit()
-
-tabulated = _override_with(tabulate=tabulate)
-
 class FileInst:
     def __init__(self, sess, path, fname):
         self.sess = sess

@@ -10,7 +10,7 @@ valid_url = re.compile("^(ftp|sftp):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*(:[0-9]{2,
 def create_engine(url, username=None, pwd=None, port=None, pkey=None):
 
     if not valid_url.match(url):
-        raise DialectValidationError("URL validation failed")
+        raise DialectValidationError(f"URL validation failed: {url}")
 
     dialect, host_port = url.split("://")
 
@@ -38,8 +38,11 @@ def create_engine(url, username=None, pwd=None, port=None, pkey=None):
         def init(_):
             conn = paramiko.SSHClient()
             conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            conn.connect(hostname=host, port=port, username=username,
-                         pkey=paramiko.RSAKey.from_private_key_file(pkey))
+            try:
+                conn.connect(hostname=host, port=port, username=username,
+                             pkey=paramiko.RSAKey.from_private_key_file(pkey))
+            except paramiko.ssh_exception.AuthenticationException:
+                raise AuthenticationError(f"Authentication failed :: {pkey}")
 
             # cli = paramiko.SFTPClient.from_transport(conn.get_transport())
             return conn.open_sftp()
