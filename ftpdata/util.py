@@ -1,3 +1,4 @@
+from functools import reduce
 
 def _override_with(**methods):
 
@@ -18,3 +19,13 @@ def _override_with(**methods):
             return instance.__getattribute__(name)
 
     return Wrapper
+
+
+def unzip(dict):
+
+    def _inner(acc, curr):
+        keys, vals = acc
+        new_key, new_val = curr
+        return (*keys, new_key), (*vals, new_val)
+
+    return reduce( _inner , [item for item in dict.items()], ((),()) )

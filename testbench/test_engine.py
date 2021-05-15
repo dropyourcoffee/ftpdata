@@ -1,19 +1,19 @@
-import pytest
-from ftpdata import create_engine
-import os
-import mysql
-import pandas as pd
 import unittest
+from ftpdata import create_engine
+from testbench.MockSFTP import MockSFTP
 
 
-class TestEngine(unittest.TestCase):
+class TestEngine(MockSFTP):
 
-    ftp_host_ip = ""
-    ftp_user = ""
-    ftp_pwd = ""
+    def test_1_create_engine_sftp(self):
+        engine = create_engine(self.mock_sftp_config.url, username=self.mock_sftp_config.username, pkey=self.mock_sftp_config.keyfile)
+        engine()
 
-    def test_1_1_create_engine_ftp(self):
-        engine = create_engine(f"ftp://{TestEngine.ftp_host_ip}", username=TestEngine.ftp_user, pwd=TestEngine.ftp_pwd)
+    def test_2_create_engine_ftps(self):
+        engine = create_engine(self.mock_sftp_config.url, username=self.mock_sftp_config.username, pkey=self.mock_sftp_config.keyfile)
         sess = engine()
-        print(list(sess.query("/")))
+        print([f.name for f in sess.query("/testdata")])
 
+
+if __name__ == "__main__":
+    unittest.main()
