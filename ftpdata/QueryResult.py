@@ -4,7 +4,7 @@ import pandas as pd
 import mysql
 
 
-_get_vals = lambda fpm, r: ", ".join([desc.get('fn', lambda x: x)(r[1][idx]) for (idx, desc) in enumerate(fpm) if desc is not None])
+_get_vals = lambda fpm, r: ", ".join([desc.get('fn', lambda x: x)(r[idx]) for (idx, desc) in enumerate(fpm) if desc is not None])
 _get_cols = lambda fpm: ", ".join([f"`{desc.get('column_name')}`" for desc in fpm if desc is not None])
 
 
@@ -37,8 +37,12 @@ def tabulate(self, preset=None, header='infer', sep=','):
         password=preset.sync_db.password
     ) as cnx:
         cursor = cnx.cursor(dictionary=True)
-        for idx, d in enumerate(df.iterrows()):
+        p.vals = {}
+        for idx, (_, d) in enumerate(df.iterrows()):
             p.qvals = _get_vals(mapper, d)
+            p.vals = dict(zip([m.get('column_name') for m in mapper if m is not None],
+                              [d for idx, d in enumerate(d) if mapper[idx] is not None]
+                              ))
             qstr = insert_fn(p)
             cursor.execute(qstr)
         cursor.close()
