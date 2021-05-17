@@ -36,6 +36,10 @@ def create_engine(url, username=None, pwd=None, port=None, pkey=None):
         port = 22 if port is None else int(port)
 
         def init(_):
+
+            if username is None or (pwd is None and pkey is None):
+                raise AuthenticationError("Authentication is not given")
+
             conn = paramiko.SSHClient()
             conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             try:

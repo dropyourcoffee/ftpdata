@@ -1,8 +1,5 @@
 import os.path
-from ftpdata.util import _override_with
 import paramiko.sftp_client
-import pandas as pd
-import mysql
 import re
 
 
