@@ -6,4 +6,9 @@ dist/
 *.pyc
 *.pem
 .env
-preset_a.py
+testbench/MockSFTP/users.conf
+testbench/MockSFTP/id_rsa.pub
+testbench/MockSFTP/key.pem
+
+FDT*
+*.dat
