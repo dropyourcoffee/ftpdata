@@ -2,6 +2,7 @@ import unittest
 import pytest
 import os
 import rsa
+import re
 from ftpdata import create_engine
 from ftpdata.exceptions import *
 from testbench.MockSFTP import MockSFTP
@@ -47,6 +48,18 @@ class TestEngine(MockSFTP):
             engine = create_engine(self.mock_sftp_config.url, username=self.mock_sftp_config.username, pkey=fake_keyfile)
             engine()
         os.remove(fake_keyfile)
+
+    def test_7_spec_filter_by_str(self):
+        engine = create_engine(self.mock_sftp_config.url, username=self.mock_sftp_config.username, pkey=self.mock_sftp_config.keyfile)
+        sess = engine()
+        files = [f.name for f in sess.query("/testdata").filter_by("sample")]
+        self.assertEqual(files, ['sample.csv'])
+
+    def test_8_spec_filter_by_regex(self):
+        engine = create_engine(self.mock_sftp_config.url, username=self.mock_sftp_config.username, pkey=self.mock_sftp_config.keyfile)
+        sess = engine()
+        files = [f.name for f in sess.query("/testdata").filter_by(re.compile('^sample'))]
+        self.assertEqual(files, ['sample.csv'])
 
 
 if __name__ == "__main__":
