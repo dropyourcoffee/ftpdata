@@ -54,6 +54,6 @@ class QueryResult:
     def filter_by(self, pattern=""):
 
         # if pattern is regexp, use '.match()' otherwise check include
-        inspect_fn = pattern.math if isinstance(pattern, re.Pattern) else lambda s: bool(pattern in s)
+        inspect_fn = pattern.match if isinstance(pattern, re.Pattern) else lambda s: bool(pattern in s)
 
-        return QueryResult(self.cli, [(f[0], f[1]) for f in self.l if pattern in f[1]], encoding=self.encoding)
+        return QueryResult(self.cli, [(f[0], f[1]) for f in self.l if inspect_fn(f[1])], encoding=self.encoding)
