@@ -22,3 +22,6 @@ class DialectValidationError(Exception):
 
 class AuthenticationError(Exception):
     """ Auth fail """
+
+class SSHError(Exception):
+    """ ssh fail """

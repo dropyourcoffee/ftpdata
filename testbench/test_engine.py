@@ -32,6 +32,10 @@ class TestEngine(MockSFTP):
             engine = create_engine(self.mock_sftp_config.url, username=self.mock_sftp_config.username)
             engine()
 
+        with pytest.raises(SSHError):
+            create_engine(self.mock_sftp_config.url, username=self.mock_sftp_config.username, pkey=1)
+
+
     def test_6_wrong_key_passed(self):
         with pytest.raises(AuthenticationError):
             _, fake_key = rsa.newkeys(2048)
