@@ -1,6 +1,6 @@
 import paramiko
 from ftpdata.Navigator import Navigator
-from ftpdata.exceptions import DialectValidationError, UnknownError, AuthenticationError
+from ftpdata.exceptions import *
 import re
 from ftplib import FTP
 
@@ -34,6 +34,12 @@ def create_engine(url, username=None, pwd=None, port=None, pkey=None):
 
     elif dialect == "sftp":
         port = 22 if port is None else int(port)
+
+        try:
+            if pkey is not None:
+                paramiko.RSAKey.from_private_key_file(pkey)
+        except Exception:
+            raise SSHError(f"SSH Error while reading key file :: check your key file, {pkey}")
 
         def init(_):
 

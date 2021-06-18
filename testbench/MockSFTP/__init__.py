@@ -52,10 +52,10 @@ class MockSFTP(unittest.TestCase):
          Step 3. Create SFTP Container
          
         """
-        container_name = "test-sftp"
-        client = docker.from_env()
-        api_client = docker.APIClient(base_url='unix://var/run/docker.sock')
         if not DISABLE_CONTINOUS_LOAD:
+            container_name = "test-sftp"
+            client = docker.from_env()
+            api_client = docker.APIClient(base_url='unix://var/run/docker.sock')
             client.containers.run("atmoz/sftp",
                                   detach=True,
                                   name=container_name,
@@ -65,9 +65,9 @@ class MockSFTP(unittest.TestCase):
                                       os.path.join(manifest_dir, "id_rsa.pub"): {'bind': f'/home/{username}/.ssh/keys/id_rsa.pub', 'mode': 'ro'},
                                   },
                                   ports={'22/tcp': hostPort})
-        cls._container = client.containers.get(container_name)
-        ports = api_client.inspect_container(cls._container.id)['NetworkSettings']['Ports']
-        cls._client = client
+            cls._container = client.containers.get(container_name)
+            ports = api_client.inspect_container(cls._container.id)['NetworkSettings']['Ports']
+            cls._client = client
 
         """
          Step 4. Parse Access Configurations to test scripts.
