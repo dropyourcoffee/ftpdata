@@ -18,7 +18,7 @@ class MockSFTP(unittest.TestCase):
         manifest_dir = os.path.dirname(os.path.realpath(__file__))
         keyfile = "key.pem"
         key_pub = "id_rsa.pub"
-        hostPort = 10022
+        hostport = 10022
         username = 'user'
         passwd = ''
 
@@ -27,13 +27,13 @@ class MockSFTP(unittest.TestCase):
          
         """
         if not DISABLE_CONTINOUS_LOAD:
-            publicKey, privateKey = rsa.newkeys(2048)
+            _, private_key = rsa.newkeys(2048)
 
             with open(os.path.join(manifest_dir, keyfile), 'w') as f:
-                f.write(privateKey.save_pkcs1().decode('utf8'))
+                f.write(private_key.save_pkcs1().decode('utf8'))
             os.chmod(os.path.join(manifest_dir, keyfile), 0o600)
 
-            cmd = ["ssh-keygen", "-y", "-f", os.path.join(manifest_dir, keyfile)] # -y: OpenSSH Format
+            cmd = ["ssh-keygen", "-y", "-f", os.path.join(manifest_dir, keyfile)]  # -y: OpenSSH Format
             with open(os.path.join(manifest_dir, key_pub), 'wb') as f:
                 pub = subprocess.run(cmd, stdout=subprocess.PIPE)
                 f.write(pub.stdout)
@@ -64,7 +64,7 @@ class MockSFTP(unittest.TestCase):
                                       os.path.join(manifest_dir, "testdata")  : {'bind': f'/home/{username}/testdata'},
                                       os.path.join(manifest_dir, "id_rsa.pub"): {'bind': f'/home/{username}/.ssh/keys/id_rsa.pub', 'mode': 'ro'},
                                   },
-                                  ports={'22/tcp': hostPort})
+                                  ports={'22/tcp': hostport})
             cls._container = client.containers.get(container_name)
             ports = api_client.inspect_container(cls._container.id)['NetworkSettings']['Ports']
             cls._client = client

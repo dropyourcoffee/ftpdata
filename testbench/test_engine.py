@@ -4,7 +4,7 @@ import os
 import rsa
 import re
 from ftpdata import create_engine
-from ftpdata.exceptions import *
+from ftpdata.exceptions import DialectValidationError, AuthenticationError, SSHError
 from testbench.MockSFTP import MockSFTP
 
 

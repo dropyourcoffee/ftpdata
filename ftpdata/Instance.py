@@ -8,5 +8,5 @@ class Instance:
 
     def read(self):
 
-        self.cli.get(self.path+"/"+self.file, f"./{self.file}")
+        self.cli.get(self.path + "/" + self.file, f"./{self.file}")
         return open(f"./{self.file}").read()
