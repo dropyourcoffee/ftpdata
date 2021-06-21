@@ -12,9 +12,14 @@ setup(
 """
  Upload Steps
  
-  1. Check __version__
-  2. Build whl
-      python setup.py bdist_wheel
+  1. Setup Docker and run tests
   
-  3. twine upload dist/fitdata-{version}-py3-none-any.whl
+  2. Check __version__
+  
+  3. Build whl
+      python setup.py bdist_wheel
+      
+  4. Upload on Pypi
+      twine upload dist/fitdata-{version}-py3-none-any.whl
+      
 """
