@@ -33,11 +33,30 @@ class Navigator:
             except Exception:
                 return False
 
-    def query(self, p):
+    def _is_sftp(self):
+        return isinstance(self.sess, paramiko.sftp_client.SFTPClient)
+
+
+    def query(self, dcls):
 
         try:
+            p = dcls.__path__
+            fn = dcls.fn if hasattr(dcls, 'fn') else None
+
             ls = self.ls(p)
         except FileNotFoundError:
             raise NoSuchDirectoryError(f"'{p}' could not be found from the source.")
 
-        return QueryResult(self.sess, [(p, f) for f in ls if not self._is_dir(f"{p}/{f}")], encoding=self.encoding)
+        return QueryResult(self.sess,
+                           [(p, f) for f in ls if not self._is_dir(f"{p}/{f}")],
+                           encoding=self.encoding, inline=fn)
+
+    def add(self, dirObj):
+
+        if self._is_sftp():
+            self.sess.put(dirObj.filepath, '/'.join([dirObj.__path__, dirObj.filename]))
+        else:
+            f =open(dirObj.filepath, 'rb')
+            self.sess.storbinary(f"STOR {dirObj.filename}", f)
+            f.close()
+

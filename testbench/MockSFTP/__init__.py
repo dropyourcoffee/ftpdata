@@ -6,6 +6,7 @@ from ftpdata.util import unzip
 from collections import namedtuple
 from time import sleep
 import subprocess
+import pathlib
 
 DISABLE_UNLOAD = False
 DISABLE_CONTINOUS_LOAD = False
@@ -64,7 +65,9 @@ class MockSFTP(unittest.TestCase):
                                       os.path.join(manifest_dir, "testdata")  : {'bind': f'/home/{username}/testdata'},
                                       os.path.join(manifest_dir, "id_rsa.pub"): {'bind': f'/home/{username}/.ssh/keys/id_rsa.pub', 'mode': 'ro'},
                                   },
-                                  ports={'22/tcp': hostport})
+                                  ports={'22/tcp': hostport},
+                                  remove=True
+                                  )
             cls._container = client.containers.get(container_name)
             ports = api_client.inspect_container(cls._container.id)['NetworkSettings']['Ports']
             cls._client = client
@@ -94,3 +97,12 @@ class MockSFTP(unittest.TestCase):
         if not DISABLE_UNLOAD:
             cls._container.remove(force=True)
             cls._client.close()
+
+        dir = os.path.join(pathlib.Path(__file__).parent.resolve(), 'testdata')
+
+        # Remove files made by test cases.
+        for f in [f for f in os.listdir(dir) if f not in [
+            # files NOT to remove
+            'sample.csv'
+        ]]:
+            os.remove(os.path.join(dir, f))
